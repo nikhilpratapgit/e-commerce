@@ -3,7 +3,8 @@ import cors from "cors";
 import "dotenv/config";
 import prisma from "./config/prisma.js";
 import authRoutes from "./routes/auth.routes.js";
-
+import userRoutes from "./routes/user.routes.js";
+import categories from "./routes/category.routes.js"
 const app = express();
 
 app.use(cors());
@@ -33,6 +34,9 @@ app.get("/api/db-test", async (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/users", userRoutes);
+app.use("/api/categories",categories)
 
 const PORT = process.env.PORT || 5000;
 
