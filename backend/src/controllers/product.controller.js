@@ -90,18 +90,107 @@ export const getProductById = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
-      where: {
-        isActive: true
-      },
-      orderBy: {
-        createdAt: "desc"
+    const {
+      search,
+      categoryId,
+      minPrice,
+      maxPrice,
+      minRating,
+      sortBy = "createdAt",
+      order = "desc",
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    // Convert query parameters to numbers
+    const pageNumber = Math.max(Number(page), 1);
+    const limitNumber = Math.min(Math.max(Number(limit), 1), 100);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Build filters
+    const where = {
+      isActive: true
+    };
+
+    // Search by product name
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: "insensitive"
+      };
+    }
+
+    // Filter by category
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    // Price filter
+    if (minPrice || maxPrice) {
+      where.price = {};
+
+      if (minPrice) {
+        where.price.gte = Number(minPrice);
+      }
+
+      if (maxPrice) {
+        where.price.lte = Number(maxPrice);
+      }
+    }
+
+    // Rating filter
+    if (minRating) {
+      where.ratingAverage = {
+        gte: Number(minRating)
+      };
+    }
+
+    // Allowed sorting fields
+    const allowedSortFields = [
+      "price",
+      "ratingAverage",
+      "createdAt",
+      "name"
+    ];
+
+    const finalSortBy = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : "createdAt";
+
+    const finalOrder = order === "asc" ? "asc" : "desc";
+
+    // Get products and total count
+    const [products, totalProducts] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip,
+        take: limitNumber,
+        orderBy: {
+          [finalSortBy]: finalOrder
+        }
+      }),
+
+      prisma.product.count({
+        where
+      })
+    ]);
+
+    const totalPages = Math.ceil(totalProducts / limitNumber);
+
+    return res.status(200).json({
+      products,
+
+      pagination: {
+        currentPage: pageNumber,
+        limit: limitNumber,
+        totalProducts,
+        totalPages,
+        hasNextPage: pageNumber < totalPages,
+        hasPreviousPage: pageNumber > 1
       }
     });
 
-    return res.status(200).json({
-      products
-    });
   } catch (error) {
     console.error(error);
 

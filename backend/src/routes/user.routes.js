@@ -1,6 +1,12 @@
 import express from "express";
 
-import { createUser } from "../controllers/user.controller.js";
+import {
+  createUser,
+  getProfile,
+  updateProfile,
+  changePassword,
+  deleteAccount
+} from "../controllers/user.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleMiddleware } from "../middleware/role.middleware.js";
 
@@ -13,4 +19,27 @@ router.post(
   createUser
 );
 
+router.get(
+  "/profile",
+  authMiddleware,
+  getProfile
+);
+
+router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
+
+router.put(
+  "/change-password",
+  authMiddleware,
+  changePassword
+);
+
+router.delete(
+  "/account",
+  authMiddleware,
+  deleteAccount
+);
 export default router;

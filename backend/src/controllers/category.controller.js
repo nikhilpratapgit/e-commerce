@@ -6,7 +6,6 @@ export const getCategories = async (req, res) => {
     const categories = await prisma.category.findMany({
       where: {
         isActive: true,
-        archivedAt: null
       },
       orderBy: {
         name: "asc"
