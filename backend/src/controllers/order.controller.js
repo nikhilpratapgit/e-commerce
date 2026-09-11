@@ -312,3 +312,97 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+export const cancelOrder = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const orderId = req.params.id;
+
+    const result = await prisma.$transaction(async (tx) => {
+
+      // Find the order belonging to the logged-in user
+      const order = await tx.order.findFirst({
+        where: {
+          id: orderId,
+          userId
+        },
+        include: {
+          items: true
+        }
+      });
+
+      if (!order) {
+        throw new Error("ORDER_NOT_FOUND");
+      }
+
+      // Already cancelled
+      if (order.status === "CANCELLED") {
+        throw new Error("ORDER_ALREADY_CANCELLED");
+      }
+
+      // Cannot cancel after shipping
+      if (
+        order.status === "SHIPPED" ||
+        order.status === "DELIVERED"
+      ) {
+        throw new Error("ORDER_CANNOT_BE_CANCELLED");
+      }
+
+      // Restore stock for every product
+      for (const item of order.items) {
+        await tx.product.update({
+          where: {
+            id: item.productId
+          },
+          data: {
+            stock: {
+              increment: item.quantity
+            }
+          }
+        });
+      }
+
+      // Change order status
+      const updatedOrder = await tx.order.update({
+        where: {
+          id: orderId
+        },
+        data: {
+          status: "CANCELLED"
+        }
+      });
+
+      return updatedOrder;
+    });
+
+    return res.status(200).json({
+      message: "Order cancelled successfully",
+      order: result
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.message === "ORDER_NOT_FOUND") {
+      return res.status(404).json({
+        message: "Order not found"
+      });
+    }
+
+    if (error.message === "ORDER_ALREADY_CANCELLED") {
+      return res.status(400).json({
+        message: "Order is already cancelled"
+      });
+    }
+
+    if (error.message === "ORDER_CANNOT_BE_CANCELLED") {
+      return res.status(400).json({
+        message: "Order cannot be cancelled at this stage"
+      });
+    }
+
+    return res.status(500).json({
+      message: "Failed to cancel order"
+    });
+  }
+};

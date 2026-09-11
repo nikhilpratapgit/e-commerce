@@ -5,7 +5,8 @@ import {
   getMyOrders,
   getOrderById,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  cancelOrder
 } from "../controllers/order.controller.js";
 
 import { authMiddleware } from "../middleware/auth.middleware.js";
@@ -46,6 +47,12 @@ router.get(
   "/:id",
   authMiddleware,
   getOrderById
+);
+// order cancel
+router.patch(
+  "/:id/cancel",
+  authMiddleware,
+  cancelOrder
 );
 
 export default router;
