@@ -7,6 +7,8 @@ import userRoutes from "./routes/user.routes.js";
 import categories from "./routes/category.routes.js"
 import productRoutes from "./routes/product.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
+import orderRoutes from "./routes/order.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -41,6 +43,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/categories",categories);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
