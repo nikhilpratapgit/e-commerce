@@ -95,26 +95,61 @@ function Cart() {
   };
 
   if (loading) {
-    return <h2>Loading cart...</h2>;
+    return (
+      <main className="cart-page">
+        <div className="cart-state">
+          <h2>Loading cart...</h2>
+        </div>
+      </main>
+    );
   }
 
   if (error && !cart) {
-    return <h2>{error}</h2>;
+    return (
+      <main className="cart-page">
+        <div className="cart-state">
+          <h2>{error}</h2>
+        </div>
+      </main>
+    );
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div>
-        <h1>Your Cart</h1>
+      <main className="cart-page">
 
-        {error && <p>{error}</p>}
+        <div className="cart-header">
+          <h1>Your Cart</h1>
+          <p>Review your items before checkout.</p>
+        </div>
 
-        <p>Your cart is empty.</p>
+        {error && (
+          <p className="cart-error">
+            {error}
+          </p>
+        )}
 
-        <Link to="/products">
-          Continue Shopping
-        </Link>
-      </div>
+        <div className="empty-cart">
+          <div className="empty-cart-icon">
+            🛒
+          </div>
+
+          <h2>Your cart is empty</h2>
+
+          <p>
+            Looks like you haven't added anything to
+            your cart yet.
+          </p>
+
+          <Link
+            to="/products"
+            className="primary-button"
+          >
+            Continue Shopping
+          </Link>
+        </div>
+
+      </main>
     );
   }
 
@@ -126,79 +161,185 @@ function Cart() {
   );
 
   return (
-    <div>
-      <h1>Your Cart</h1>
+    <main className="cart-page">
 
-      {error && <p>{error}</p>}
+      <div className="cart-header">
+        <h1>Your Cart</h1>
+        <p>
+          {cart.items.length}{" "}
+          {cart.items.length === 1 ? "item" : "items"}{" "}
+          in your cart.
+        </p>
+      </div>
 
-      {cart.items.map((item) => (
-        <div key={item.id}>
-          <h2>{item.product.name}</h2>
+      {error && (
+        <p className="cart-error">
+          {error}
+        </p>
+      )}
 
-          <p>
-            Price: ₹{item.product.price}
-          </p>
+      <div className="cart-layout">
 
-          <p>
-            Quantity: {item.quantity}
-          </p>
+        {/* Cart Items */}
+        <section className="cart-items">
 
-          <button
-            onClick={() =>
-              updateQuantity(
-                item.product.id,
-                item.quantity - 1
-              )
-            }
-            disabled={item.quantity <= 1}
+          {cart.items.map((item) => (
+            <article
+              className="cart-item"
+              key={item.id}
+            >
+
+              <div className="cart-item-image">
+                {item.product.images?.length > 0 ? (
+                  <img
+                    src={item.product.images[0]}
+                    alt={item.product.name}
+                  />
+                ) : (
+                  <span>No Image</span>
+                )}
+              </div>
+
+              <div className="cart-item-content">
+
+                <div className="cart-item-main">
+
+                  <h2>
+                    {item.product.name}
+                  </h2>
+
+                  <p className="cart-item-price">
+                    ₹{item.product.price}
+                  </p>
+
+                  <p className="cart-item-stock">
+                    {item.product.stock > 0
+                      ? `${item.product.stock} available`
+                      : "Out of stock"}
+                  </p>
+
+                </div>
+
+                <div className="cart-item-bottom">
+
+                  <div className="quantity-control">
+
+                    <button
+                      onClick={() =>
+                        updateQuantity(
+                          item.product.id,
+                          item.quantity - 1
+                        )
+                      }
+                      disabled={item.quantity <= 1}
+                      aria-label="Decrease quantity"
+                    >
+                      −
+                    </button>
+
+                    <span>
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        updateQuantity(
+                          item.product.id,
+                          item.quantity + 1
+                        )
+                      }
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+
+                  </div>
+
+                  <div className="cart-item-subtotal">
+                    <span>Subtotal</span>
+
+                    <strong>
+                      ₹{item.product.price * item.quantity}
+                    </strong>
+                  </div>
+
+                  <button
+                    className="remove-item-button"
+                    onClick={() =>
+                      removeItem(item.product.id)
+                    }
+                  >
+                    Remove
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+          ))}
+
+          <div className="cart-actions">
+
+            <Link
+              to="/products"
+              className="continue-shopping"
+            >
+              ← Continue Shopping
+            </Link>
+
+            <button
+              className="clear-cart-button"
+              onClick={clearCart}
+            >
+              Clear Cart
+            </button>
+
+          </div>
+
+        </section>
+
+        {/* Order Summary */}
+        <aside className="cart-summary">
+
+          <h2>Order Summary</h2>
+
+          <div className="summary-row">
+            <span>Items</span>
+            <span>{cart.items.length}</span>
+          </div>
+
+          <div className="summary-row">
+            <span>Subtotal</span>
+            <span>₹{totalAmount}</span>
+          </div>
+
+          <div className="summary-row">
+            <span>Delivery</span>
+            <span>Free</span>
+          </div>
+
+          <div className="summary-divider" />
+
+          <div className="summary-total">
+            <span>Total</span>
+            <strong>₹{totalAmount}</strong>
+          </div>
+
+          <Link
+            to="/checkout"
+            className="checkout-button"
           >
-            -
-          </button>
+            Proceed to Checkout
+          </Link>
 
-          <span> {item.quantity} </span>
+        </aside>
 
-          <button
-            onClick={() =>
-              updateQuantity(
-                item.product.id,
-                item.quantity + 1
-              )
-            }
-          >
-            +
-          </button>
+      </div>
 
-          <p>
-            Subtotal: ₹
-            {item.product.price * item.quantity}
-          </p>
-
-          <button
-            onClick={() =>
-              removeItem(item.product.id)
-            }
-          >
-            Remove
-          </button>
-
-          <hr />
-        </div>
-      ))}
-
-      <h2>Total: ₹{totalAmount}</h2>
-
-      <button onClick={clearCart}>
-        Clear Cart
-      </button>
-
-      <br />
-      <br />
-
-      <Link to="/checkout">
-        Proceed to Checkout
-      </Link>
-    </div>
+    </main>
   );
 }
 
 export default Cart;
+

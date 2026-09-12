@@ -121,7 +121,6 @@ function ProductDetails() {
       setError("");
 
       if (editingReviewId) {
-        // Update review
         const response = await api.put(
           `/products/${id}/reviews/${editingReviewId}`,
           {
@@ -135,7 +134,6 @@ function ProductDetails() {
           "Review updated successfully"
         );
       } else {
-        // Create review
         const response = await api.post(
           `/products/${id}/reviews`,
           {
@@ -150,12 +148,10 @@ function ProductDetails() {
         );
       }
 
-      // Reset form
       setRating(5);
       setComment("");
       setEditingReviewId(null);
 
-      // Reload reviews
       await fetchReviews();
     } catch (error) {
       console.error(error);
@@ -167,7 +163,7 @@ function ProductDetails() {
     }
   };
 
-  // Start editing review
+  // Edit review
   const handleEditReview = (review) => {
     setEditingReviewId(review.id);
     setRating(review.rating);
@@ -179,7 +175,7 @@ function ProductDetails() {
     });
   };
 
-  // Cancel editing
+  // Cancel edit
   const handleCancelEdit = () => {
     setEditingReviewId(null);
     setRating(5);
@@ -221,196 +217,356 @@ function ProductDetails() {
   };
 
   if (loading) {
-    return <h2>Loading product...</h2>;
+    return (
+      <main className="product-details-page">
+        <h2>Loading product...</h2>
+      </main>
+    );
   }
 
   if (error && !product) {
-    return <h2>{error}</h2>;
+    return (
+      <main className="product-details-page">
+        <h2>{error}</h2>
+      </main>
+    );
   }
 
   if (!product) {
-    return <h2>Product not found</h2>;
+    return (
+      <main className="product-details-page">
+        <h2>Product not found</h2>
+      </main>
+    );
   }
 
   return (
-    <div>
-      {/* Product Details */}
-      <Link to="/products">
+    <main className="product-details-page">
+
+      <Link
+        to="/products"
+        className="back-link"
+      >
         ← Back to Products
       </Link>
 
-      <h1>{product.name}</h1>
+      {/* Product section */}
+      <section className="product-details-card">
 
-      <p>{product.description}</p>
+        <div className="product-details-image">
+          {product.images?.length > 0 ? (
+            <img
+              src={product.images[0]}
+              alt={product.name}
+            />
+          ) : (
+            <span>No Image Available</span>
+          )}
+        </div>
 
-      <p>
-        Price: ₹{product.price}
-      </p>
+        <div className="product-details-info">
 
-      <p>
-        Stock: {product.stock}
-      </p>
+          <p className="product-category-label">
+            Product
+          </p>
 
-      <p>
-        Rating: {product.ratingAverage?.toFixed(1) || "0.0"} / 5
-        {" "}
-        ({product.ratingCount || 0} reviews)
-      </p>
+          <h1>{product.name}</h1>
 
-      <button
-        onClick={handleAddToCart}
-        disabled={
-          product.stock === 0 ||
-          addingToCart
-        }
-      >
-        {product.stock === 0
-          ? "Out of Stock"
-          : addingToCart
-          ? "Adding..."
-          : "Add to Cart"}
-      </button>
+          <div className="details-rating">
+            <span>★</span>
 
-      {" "}
+            <strong>
+              {product.ratingAverage?.toFixed(1) || "0.0"}
+            </strong>
 
-      <Link to="/cart">
-        Go to Cart
-      </Link>
-
-      {message && <p>{message}</p>}
-      {error && <p>{error}</p>}
-
-      <hr />
-
-      {/* Reviews */}
-      <h2>Customer Reviews</h2>
-
-      {reviewsLoading ? (
-        <p>Loading reviews...</p>
-      ) : reviews.length === 0 ? (
-        <p>No reviews yet.</p>
-      ) : (
-        reviews.map((review) => (
-          <div key={review.id}>
-            <h3>
-              {review.user?.name || "User"}
-            </h3>
-
-            <p>
-              Rating: {review.rating} / 5
-            </p>
-
-            <p>
-              {review.comment || "No comment"}
-            </p>
-
-            <p>
-              {new Date(
-                review.createdAt
-              ).toLocaleDateString()}
-            </p>
-
-            {/* Only show edit/delete for current user's review */}
-            {isAuthenticated &&
-              review.userId === user?.id && (
-                <div>
-                  <button
-                    onClick={() =>
-                      handleEditReview(review)
-                    }
-                  >
-                    Edit
-                  </button>
-
-                  {" "}
-
-                  <button
-                    onClick={() =>
-                      handleDeleteReview(review.id)
-                    }
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-
-            <hr />
+            <span>
+              ({product.ratingCount || 0} reviews)
+            </span>
           </div>
-        ))
-      )}
 
-      {/* Add/Edit Review */}
-      {isAuthenticated ? (
-        <div>
-          <h2>
-            {editingReviewId
-              ? "Edit Your Review"
-              : "Write a Review"}
-          </h2>
+          <p className="details-description">
+            {product.description}
+          </p>
 
-          <form onSubmit={handleSubmitReview}>
-            <div>
-              <label>Rating</label>
+          <div className="details-price">
+            ₹{product.price}
+          </div>
 
-              <select
-                value={rating}
-                onChange={(e) =>
-                  setRating(Number(e.target.value))
-                }
-              >
-                <option value={5}>5 - Excellent</option>
-                <option value={4}>4 - Good</option>
-                <option value={3}>3 - Average</option>
-                <option value={2}>2 - Poor</option>
-                <option value={1}>1 - Very Poor</option>
-              </select>
-            </div>
+          <p
+            className={
+              product.stock > 0
+                ? "details-stock available"
+                : "details-stock unavailable"
+            }
+          >
+            {product.stock > 0
+              ? `${product.stock} items available`
+              : "Out of Stock"}
+          </p>
 
-            <br />
+          <div className="details-actions">
 
-            <div>
-              <label>Comment</label>
-
-              <textarea
-                value={comment}
-                onChange={(e) =>
-                  setComment(e.target.value)
-                }
-                placeholder="Write your review..."
-                rows="5"
-              />
-            </div>
-
-            <br />
-
-            <button type="submit">
-              {editingReviewId
-                ? "Update Review"
-                : "Submit Review"}
+            <button
+              className="add-cart-button"
+              onClick={handleAddToCart}
+              disabled={
+                product.stock === 0 ||
+                addingToCart
+              }
+            >
+              {product.stock === 0
+                ? "Out of Stock"
+                : addingToCart
+                ? "Adding..."
+                : "Add to Cart"}
             </button>
 
-            {editingReviewId && (
-              <>
-                {" "}
+            <Link
+              to="/cart"
+              className="cart-link-button"
+            >
+              Go to Cart
+            </Link>
 
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
-          </form>
+          </div>
+
+          {message && (
+            <p className="success-message">
+              {message}
+            </p>
+          )}
+
+          {error && (
+            <p className="error-message">
+              {error}
+            </p>
+          )}
+
         </div>
-      ) : (
-        <p>
-          Please{" "}
-          <Link to="/login">login</Link>{" "}
-          to write a review.
-        </p>
-      )}
-    </div>
+      </section>
+
+      {/* Reviews */}
+      <section className="reviews-section">
+
+        <div className="reviews-header">
+          <div>
+            <h2>Customer Reviews</h2>
+
+            <p>
+              See what other customers think about this
+              product.
+            </p>
+          </div>
+
+          <div className="reviews-summary">
+            <strong>
+              ★ {product.ratingAverage?.toFixed(1) || "0.0"}
+            </strong>
+
+            <span>
+              {product.ratingCount || 0} reviews
+            </span>
+          </div>
+        </div>
+
+        {reviewsLoading ? (
+          <div className="review-state">
+            <p>Loading reviews...</p>
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="review-state">
+            <h3>No reviews yet</h3>
+            <p>
+              Be the first person to review this product.
+            </p>
+          </div>
+        ) : (
+          <div className="reviews-list">
+
+            {reviews.map((review) => (
+              <article
+                className="review-card"
+                key={review.id}
+              >
+
+                <div className="review-top">
+
+                  <div className="review-user">
+                    <div className="review-avatar">
+                      {(
+                        review.user?.name ||
+                        "U"
+                      )
+                        .charAt(0)
+                        .toUpperCase()}
+                    </div>
+
+                    <div>
+                      <h3>
+                        {review.user?.name || "User"}
+                      </h3>
+
+                      <p>
+                        {new Date(
+                          review.createdAt
+                        ).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="review-rating">
+                    {"★".repeat(review.rating)}
+                    {"☆".repeat(5 - review.rating)}
+                  </div>
+
+                </div>
+
+                <p className="review-comment">
+                  {review.comment || "No comment"}
+                </p>
+
+                {isAuthenticated &&
+                  review.userId === user?.id && (
+                    <div className="review-actions">
+
+                      <button
+                        className="edit-review-button"
+                        onClick={() =>
+                          handleEditReview(review)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="delete-review-button"
+                        onClick={() =>
+                          handleDeleteReview(review.id)
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+                  )}
+
+              </article>
+            ))}
+
+          </div>
+        )}
+
+        {/* Review form */}
+        <div className="review-form-card">
+
+          {isAuthenticated ? (
+            <>
+              <h2>
+                {editingReviewId
+                  ? "Edit Your Review"
+                  : "Write a Review"}
+              </h2>
+
+              <p>
+                Share your experience with this product.
+              </p>
+
+              <form onSubmit={handleSubmitReview}>
+
+                <div className="review-form-field">
+
+                  <label>Rating</label>
+
+                  <select
+                    value={rating}
+                    onChange={(e) =>
+                      setRating(Number(e.target.value))
+                    }
+                  >
+                    <option value={5}>
+                      5 - Excellent
+                    </option>
+
+                    <option value={4}>
+                      4 - Good
+                    </option>
+
+                    <option value={3}>
+                      3 - Average
+                    </option>
+
+                    <option value={2}>
+                      2 - Poor
+                    </option>
+
+                    <option value={1}>
+                      1 - Very Poor
+                    </option>
+                  </select>
+
+                </div>
+
+                <div className="review-form-field">
+
+                  <label>Comment</label>
+
+                  <textarea
+                    value={comment}
+                    onChange={(e) =>
+                      setComment(e.target.value)
+                    }
+                    placeholder="Write your review..."
+                    rows="5"
+                  />
+
+                </div>
+
+                <div className="review-form-actions">
+
+                  <button type="submit">
+                    {editingReviewId
+                      ? "Update Review"
+                      : "Submit Review"}
+                  </button>
+
+                  {editingReviewId && (
+                    <button
+                      type="button"
+                      className="cancel-review-button"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  )}
+
+                </div>
+
+              </form>
+            </>
+          ) : (
+            <div className="login-review">
+
+              <h2>Want to review this product?</h2>
+
+              <p>
+                Login to share your experience.
+              </p>
+
+              <Link
+                to="/login"
+                className="primary-button"
+              >
+                Login to Review
+              </Link>
+
+            </div>
+          )}
+
+        </div>
+
+      </section>
+
+    </main>
   );
 }
 

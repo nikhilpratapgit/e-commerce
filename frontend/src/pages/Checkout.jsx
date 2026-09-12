@@ -52,102 +52,176 @@ function Checkout() {
   };
 
   return (
-    <div>
-      <h1>Checkout</h1>
+    <main className="checkout-page">
 
-      {error && <p>{error}</p>}
+      <div className="checkout-header">
+        <h1>Checkout</h1>
+        <p>
+          Enter your shipping details to place your order.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Full Name</label>
-
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-          />
+      {error && (
+        <div className="checkout-error">
+          {error}
         </div>
+      )}
 
-        <div>
-          <label>Phone</label>
+      <div className="checkout-layout">
 
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <section className="checkout-card">
 
-        <div>
-          <label>Address</label>
+          <h2>Shipping Information</h2>
 
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <form onSubmit={handleSubmit}>
 
-        <div>
-          <label>City</label>
+            <div className="checkout-form-grid">
 
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            required
-          />
-        </div>
+              <div className="checkout-field">
+                <label>Full Name</label>
 
-        <div>
-          <label>State</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
 
-          <input
-            type="text"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            required
-          />
-        </div>
+              <div className="checkout-field">
+                <label>Phone</label>
 
-        <div>
-          <label>Pincode</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
 
-          <input
-            type="text"
-            name="pincode"
-            value={formData.pincode}
-            onChange={handleChange}
-            required
-          />
-        </div>
+              <div className="checkout-field checkout-full-width">
+                <label>Address</label>
 
-        <div>
-          <label>Country</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter your complete address"
+                  rows="4"
+                  required
+                />
+              </div>
 
-          <input
-            type="text"
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            required
-          />
-        </div>
+              <div className="checkout-field">
+                <label>City</label>
 
-        <br />
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="Enter your city"
+                  required
+                />
+              </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Placing Order..." : "Place Order"}
-        </button>
-      </form>
-    </div>
+              <div className="checkout-field">
+                <label>State</label>
+
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  placeholder="Enter your state"
+                  required
+                />
+              </div>
+
+              <div className="checkout-field">
+                <label>Pincode</label>
+
+                <input
+                  type="text"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  placeholder="Enter pincode"
+                  required
+                />
+              </div>
+
+              <div className="checkout-field">
+                <label>Country</label>
+
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+            </div>
+
+            <div className="checkout-form-actions">
+
+              <button
+                type="submit"
+                className="place-order-button"
+                disabled={loading}
+              >
+                {loading
+                  ? "Placing Order..."
+                  : "Place Order"}
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+        <aside className="checkout-info-card">
+
+          <div className="checkout-info-icon">
+            📦
+          </div>
+
+          <h2>Ready to order?</h2>
+
+          <p>
+            Make sure your shipping information is correct
+            before placing your order.
+          </p>
+
+          <div className="checkout-info-list">
+            <div>
+              <span>✓</span>
+              Secure order placement
+            </div>
+
+            <div>
+              <span>✓</span>
+              Easy order tracking
+            </div>
+
+            <div>
+              <span>✓</span>
+              Manage orders from your account
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
   );
 }
 

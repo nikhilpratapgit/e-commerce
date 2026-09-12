@@ -11,40 +11,55 @@ function Navbar() {
   };
 
   return (
-    <nav>
-      <Link to="/">Marketplace</Link>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-brand">
+          Marketplace
+        </Link>
 
-      <div>
-        <Link to="/products">Products</Link>
+        <div className="navbar-links">
+          <Link to="/products">Products</Link>
 
-        {isAuthenticated && (
-          <>
-            <Link to="/cart">Cart</Link>
-            <Link to="/orders">Orders</Link>
-            <Link to="/profile">Profile</Link>
-          </>
-        )}
+          {isAuthenticated && (
+            <>
+              <Link to="/cart">Cart</Link>
+              <Link to="/orders">Orders</Link>
+              <Link to="/profile">Profile</Link>
+            </>
+          )}
 
-        {user?.role === "ADMIN" && (
-          <Link to="/admin/dashboard">
-            Admin Dashboard
-          </Link>
-        )}
+          {user?.role === "ADMIN" && (
+            <Link to="/admin/dashboard">
+              Admin Dashboard
+            </Link>
+          )}
 
-        {!isAuthenticated ? (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        ) : (
-          <>
-            <span>Hello, {user.name}</span>
+          {!isAuthenticated ? (
+            <>
+              <Link to="/login">Login</Link>
 
-            <button onClick={handleLogout}>
-              Logout
-            </button>
-          </>
-        )}
+              <Link
+                to="/register"
+                className="navbar-register"
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <span className="navbar-user">
+                Hello, {user.name}
+              </span>
+
+              <button
+                className="navbar-logout"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
