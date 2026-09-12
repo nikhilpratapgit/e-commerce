@@ -12,11 +12,12 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import OrderDetails from "./pages/OrderDetails";
 
 function App() {
   return (
     <BrowserRouter>
-    <Navbar />
+      <Navbar />
       <Routes>
 
         <Route path="/" element={<Home />} />
@@ -53,7 +54,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/orders/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={
