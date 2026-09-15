@@ -85,7 +85,7 @@ function AdminDashboard() {
         <button
         type="button"
         className="admin-add-product-button"
-        onClick={()=> navigate("/")}
+        onClick={()=> navigate("/admin/register")}
         >
           Add Admin
         </button>

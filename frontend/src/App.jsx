@@ -15,6 +15,7 @@ import Navbar from "./components/Navbar";
 import OrderDetails from "./pages/OrderDetails";
 import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
+import AdminRegister from "./pages/AdminRegister";
 
 function App() {
   return (
@@ -88,6 +89,10 @@ function App() {
         <Route
           path="/admin/products/edit/:id"
           element={<EditProduct />}
+        />
+        <Route
+          path="/admin/register"
+          element={<AdminRegister />}
         />
       </Routes>
     </BrowserRouter>

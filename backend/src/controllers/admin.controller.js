@@ -1,4 +1,5 @@
 import prisma from "../config/prisma.js";
+import bcrypt from "bcrypt"
 
 export const getDashboard = async (req, res) => {
   try {
@@ -122,6 +123,51 @@ export const getDashboard = async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to fetch dashboard data"
+    });
+  }
+};
+
+export const createAdmin = async (req,res)=> {
+  try{
+    const {name, email, password} = req.body;
+
+    if(!name || !email || !password ){
+      return res.status(400).json({
+        message: "Name, email and password are required"
+      });
+    }
+    const existingAdmin = await prisma.user.findUnique({
+      where: {email}
+    });
+
+    if(existingAdmin){
+      return res.status(409).json({
+        message :"Admin already exist"
+      });
+    }
+    const hashedPassword = await bcrypt.hash(password,10);
+
+    const admin = await prisma.user.create({
+      data:{
+        name,
+        email,
+        password: hashedPassword,
+        role: "ADMIN"
+      }
+    });
+    return res.status(201).json({
+      message:" Admin created successfully",
+      user:{
+        id: admin.id,
+        name:admin.name,
+        email:admin.email,
+        role:admin.role
+      }
+    });
+  } catch (error){
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to create admin"
     });
   }
 };
