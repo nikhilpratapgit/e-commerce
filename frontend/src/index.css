@@ -659,7 +659,10 @@ textarea::placeholder {
 .product-update-button button:last-child:hover {
   background: #fee2e2;
 }
-
+.admin-button{
+  display: flex;
+  gap: 20px;
+}
 
 /* =========================================================
    PRODUCTS EMPTY / PAGINATION

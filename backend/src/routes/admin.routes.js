@@ -12,6 +12,6 @@ router.get(
   authMiddleware,
   roleMiddleware("ADMIN"),
   getDashboard
-);
+);  
 
 export default router;

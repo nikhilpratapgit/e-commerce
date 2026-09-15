@@ -74,6 +74,7 @@ function AdminDashboard() {
             business overview.
           </p>
         </div>
+        <div className="admin-button">
         <button
           type="button"
           className="admin-add-product-button"
@@ -81,6 +82,14 @@ function AdminDashboard() {
         >
            Add Product
         </button>
+        <button
+        type="button"
+        className="admin-add-product-button"
+        onClick={()=> navigate("/")}
+        >
+          Add Admin
+        </button>
+        </div>
       </div>
 
       <section className="admin-stats">
