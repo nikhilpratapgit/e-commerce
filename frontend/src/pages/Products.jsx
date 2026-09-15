@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../services/api";
+
+import ProductFilters from "../components/ProductFilters";
+import ProductGrid from "../components/ProductGrid";
+import Pagination from "../components/Pagination";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -9,7 +12,12 @@ function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Search input = what user is currently typing
+  const [searchInput, setSearchInput] = useState("");
+
+  // Search = value actually used for API request
   const [search, setSearch] = useState("");
+
   const [categoryId, setCategoryId] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -21,10 +29,12 @@ function Products() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await api.get("/categories");
+
         setCategories(response.data.categories);
       } catch (error) {
         console.error(error);
@@ -34,6 +44,19 @@ function Products() {
     fetchCategories();
   }, []);
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchInput]);
+
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -83,10 +106,10 @@ function Products() {
     page
   ]);
 
+  // Reset page when non-search filters change
   useEffect(() => {
     setPage(1);
   }, [
-    search,
     categoryId,
     minPrice,
     maxPrice,
@@ -95,10 +118,28 @@ function Products() {
     order
   ]);
 
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchInput("");
+    setSearch("");
+
+    setCategoryId("");
+    setMinPrice("");
+    setMaxPrice("");
+    setMinRating("");
+
+    setSortBy("createdAt");
+    setOrder("desc");
+
+    setPage(1);
+  };
+
   if (loading) {
     return (
       <main className="products-page">
-        <h2>Loading products...</h2>
+        <div className="products-state">
+          <h2>Loading products...</h2>
+        </div>
       </main>
     );
   }
@@ -106,7 +147,9 @@ function Products() {
   if (error) {
     return (
       <main className="products-page">
-        <h2>{error}</h2>
+        <div className="products-state">
+          <h2>{error}</h2>
+        </div>
       </main>
     );
   }
@@ -115,215 +158,72 @@ function Products() {
     <main className="products-page">
 
       {/* Header */}
-      <div className="products-header">
-        <div>
-          <h1>Explore Products</h1>
-          <p>
-            Find the products you're looking for.
-          </p>
-        </div>
-      </div>
+      <header className="products-header">
+
+        <span className="products-eyebrow">
+          OUR COLLECTION
+        </span>
+
+        <h1>
+          Explore Products
+        </h1>
+
+        <p>
+          Discover products you'll love
+        </p>
+
+      </header>
 
       {/* Filters */}
-      <section className="filters">
+      <ProductFilters
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
 
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        categoryId={categoryId}
+        setCategoryId={setCategoryId}
 
-        <div className="filter-grid">
+        categories={categories}
 
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-          >
-            <option value="">All Categories</option>
+        minPrice={minPrice}
+        setMinPrice={setMinPrice}
 
-            {categories.map((category) => (
-              <option
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </option>
-            ))}
-          </select>
+        maxPrice={maxPrice}
+        setMaxPrice={setMaxPrice}
 
-          <input
-            type="number"
-            placeholder="Min price"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-          />
+        minRating={minRating}
+        setMinRating={setMinRating}
 
-          <input
-            type="number"
-            placeholder="Max price"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-          />
+        sortBy={sortBy}
+        order={order}
+        setSortBy={setSortBy}
+        setOrder={setOrder}
 
-          <select
-            value={minRating}
-            onChange={(e) => setMinRating(e.target.value)}
-          >
-            <option value="">Any Rating</option>
-            <option value="1">1★ & above</option>
-            <option value="2">2★ & above</option>
-            <option value="3">3★ & above</option>
-            <option value="4">4★ & above</option>
-            <option value="5">5★</option>
-          </select>
-
-          <select
-            value={`${sortBy}-${order}`}
-            onChange={(e) => {
-              const [newSortBy, newOrder] =
-                e.target.value.split("-");
-
-              setSortBy(newSortBy);
-              setOrder(newOrder);
-            }}
-          >
-            <option value="createdAt-desc">
-              Newest
-            </option>
-
-            <option value="createdAt-asc">
-              Oldest
-            </option>
-
-            <option value="price-asc">
-              Price: Low to High
-            </option>
-
-            <option value="price-desc">
-              Price: High to Low
-            </option>
-
-            <option value="ratingAverage-desc">
-              Rating: High to Low
-            </option>
-
-            <option value="ratingAverage-asc">
-              Rating: Low to High
-            </option>
-
-            <option value="name-asc">
-              Name: A to Z
-            </option>
-
-            <option value="name-desc">
-              Name: Z to A
-            </option>
-          </select>
-
-        </div>
-      </section>
+        onClear={handleClearFilters}
+      />
 
       {/* Products */}
       {products.length === 0 ? (
         <div className="empty-products">
-          <h2>No products found</h2>
+
+          <h2>
+            No products found
+          </h2>
+
           <p>
             Try changing your search or filters.
           </p>
+
         </div>
       ) : (
-        <section className="product-grid">
-
-          {products.map((product) => (
-            <article
-              className="product-card"
-              key={product.id}
-            >
-
-              {/* Product image */}
-              <div className="product-image">
-                {product.images?.length > 0 ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                  />
-                ) : (
-                  <span>No Image</span>
-                )}
-              </div>
-
-              <div className="product-card-content">
-
-                <h2>{product.name}</h2>
-
-                <p className="product-description">
-                  {product.description}
-                </p>
-
-                <div className="product-info">
-                  <span className="product-price">
-                    ₹{product.price}
-                  </span>
-
-                  <span className="product-rating">
-                    ★{" "}
-                    {product.ratingAverage
-                      ? product.ratingAverage.toFixed(1)
-                      : "0.0"}
-                  </span>
-                </div>
-
-                <p className="product-stock">
-                  {product.stock > 0
-                    ? `${product.stock} in stock`
-                    : "Out of stock"}
-                </p>
-
-                <Link
-                  to={`/products/${product.id}`}
-                  className="view-product-button"
-                >
-                  View Details
-                </Link>
-
-              </div>
-            </article>
-          ))}
-
-        </section>
+        <ProductGrid products={products} />
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-
-          <button
-            onClick={() =>
-              setPage((prev) => prev - 1)
-            }
-            disabled={page === 1}
-          >
-            ← Previous
-          </button>
-
-          <span>
-            Page {page} of {totalPages}
-          </span>
-
-          <button
-            onClick={() =>
-              setPage((prev) => prev + 1)
-            }
-            disabled={page === totalPages}
-          >
-            Next →
-          </button>
-
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        setPage={setPage}
+      />
 
     </main>
   );

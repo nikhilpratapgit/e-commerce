@@ -80,6 +80,7 @@ export const createOrder = async (req, res) => {
 
     // Create order
     const order = await prisma.order.create({
+      
       data: {
         orderNumber,
         userId,

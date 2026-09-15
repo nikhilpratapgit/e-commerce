@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -73,6 +74,13 @@ function AdminDashboard() {
             business overview.
           </p>
         </div>
+        <button
+          type="button"
+          className="admin-add-product-button"
+          onClick={() => navigate("/admin/products/add")}
+        >
+           Add Product
+        </button>
       </div>
 
       <section className="admin-stats">

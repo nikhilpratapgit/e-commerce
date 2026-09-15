@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -35,7 +35,6 @@ function Login() {
 
       login(token, user);
 
-      // Redirect based on role
       if (user.role === "ADMIN") {
         navigate("/admin/dashboard");
       } else {
@@ -53,44 +52,105 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <main className="auth-page">
 
-      {error && <p>{error}</p>}
+      <div className="auth-card">
 
-      <form onSubmit={handleSubmit}>
+        {/* Header */}
+        <div className="auth-header">
 
-        <div>
-          <label>Email</label>
+          <span className="auth-eyebrow">
+            WELCOME BACK
+          </span>
 
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+          <h1>Login</h1>
+
+          <p>
+            Sign in to continue shopping with us.
+          </p>
+
         </div>
 
-        <div>
-          <label>Password</label>
+        {/* Error */}
+        {error && (
+          <div className="auth-error">
+            {error}
+          </div>
+        )}
 
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+        {/* Form */}
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
+
+          {/* Email */}
+          <div className="auth-field">
+
+            <label htmlFor="email">
+              Email
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          {/* Password */}
+          <div className="auth-field">
+
+            <label htmlFor="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="auth-submit-button"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+        </form>
+
+        {/* Register */}
+        <div className="auth-footer">
+
+          <span>
+            Don't have an account?
+          </span>
+
+          <Link to="/register">
+            Create an account
+          </Link>
+
         </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
+      </div>
 
-      </form>
-    </div>
+    </main>
   );
 }
 
 export default Login;
+

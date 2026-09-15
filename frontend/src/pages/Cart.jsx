@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
@@ -141,12 +143,13 @@ function Cart() {
             your cart yet.
           </p>
 
-          <Link
-            to="/products"
+          <button
+            type="button"
             className="primary-button"
+            onClick={() => navigate("/products")}
           >
             Continue Shopping
-          </Link>
+          </button>
         </div>
 
       </main>
@@ -281,12 +284,14 @@ function Cart() {
 
           <div className="cart-actions">
 
-            <Link
-              to="/products"
+            <button
+              type="button"
               className="continue-shopping"
+              onClick={() => navigate("/products")}
             >
-              ← Continue Shopping
-            </Link>
+              Continue Shopping
+            </button>
+
 
             <button
               className="clear-cart-button"

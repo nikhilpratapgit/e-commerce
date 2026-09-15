@@ -13,6 +13,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import OrderDetails from "./pages/OrderDetails";
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
 
 function App() {
   return (
@@ -79,7 +81,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/admin/products/add"
+          element={<AddProduct />}
+        />
+        <Route
+          path="/admin/products/edit/:id"
+          element={<EditProduct />}
+        />
       </Routes>
     </BrowserRouter>
   );

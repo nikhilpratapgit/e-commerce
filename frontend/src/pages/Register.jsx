@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -52,56 +52,126 @@ function Register() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
+    <main className="auth-page">
 
-      {error && <p>{error}</p>}
+      <div className="auth-card">
 
-      <form onSubmit={handleSubmit}>
+        {/* Header */}
+        <div className="auth-header">
 
-        <div>
-          <label>Name</label>
+          <span className="auth-eyebrow">
+            GET STARTED
+          </span>
 
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+          <h1>Create Account</h1>
+
+          <p>
+            Create your account and start shopping with us.
+          </p>
+
         </div>
 
-        <div>
-          <label>Email</label>
+        {/* Error */}
+        {error && (
+          <div className="auth-error">
+            {error}
+          </div>
+        )}
 
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        {/* Form */}
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
+
+          {/* Name */}
+          <div className="auth-field">
+
+            <label htmlFor="name">
+              Name
+            </label>
+
+            <input
+              id="name"
+              type="text"
+              name="name"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          {/* Email */}
+          <div className="auth-field">
+
+            <label htmlFor="email">
+              Email
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          {/* Password */}
+          <div className="auth-field">
+
+            <label htmlFor="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          {/* Register Button */}
+          <button
+            type="submit"
+            className="auth-submit-button"
+            disabled={loading}
+          >
+            {loading
+              ? "Creating account..."
+              : "Create Account"}
+          </button>
+
+        </form>
+
+        {/* Login */}
+        <div className="auth-footer">
+
+          <span>
+            Already have an account?
+          </span>
+
+          <Link to="/login">
+            Login
+          </Link>
+
         </div>
 
-        <div>
-          <label>Password</label>
+      </div>
 
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating account..." : "Register"}
-        </button>
-
-      </form>
-    </div>
+    </main>
   );
 }
 
 export default Register;
+
