@@ -21,6 +21,8 @@ function Products() {
   const [categoryId, setCategoryId] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState("");
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState("");
   const [minRating, setMinRating] = useState("");
 
   const [sortBy, setSortBy] = useState("createdAt");
@@ -49,12 +51,26 @@ function Products() {
     const timer = setTimeout(() => {
       setSearch(searchInput);
       setPage(1);
-    }, 500);
+    }, 800);
 
     return () => {
       clearTimeout(timer);
     };
   }, [searchInput]);
+
+  //debounce minPrice and maxPrice
+  // Debounce price filters
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedMinPrice(minPrice);
+      setDebouncedMaxPrice(maxPrice);
+      setPage(1);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [minPrice, maxPrice]);
 
   // Fetch products
   useEffect(() => {
@@ -67,8 +83,8 @@ function Products() {
           params: {
             search,
             categoryId,
-            minPrice,
-            maxPrice,
+            minPrice : debouncedMinPrice,
+            maxPrice : debouncedMaxPrice,
             minRating,
             sortBy,
             order,
@@ -98,8 +114,8 @@ function Products() {
   }, [
     search,
     categoryId,
-    minPrice,
-    maxPrice,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     minRating,
     sortBy,
     order,
@@ -111,8 +127,6 @@ function Products() {
     setPage(1);
   }, [
     categoryId,
-    minPrice,
-    maxPrice,
     minRating,
     sortBy,
     order
