@@ -57,6 +57,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/orders/:id"
           element={
@@ -65,6 +66,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -82,18 +84,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/products/add"
           element={<AddProduct />}
         />
+
         <Route
           path="/admin/products/edit/:id"
           element={<EditProduct />}
         />
+
         <Route
           path="/admin/register"
           element={<AdminRegister />}
         />
+        
       </Routes>
     </BrowserRouter>
   );
