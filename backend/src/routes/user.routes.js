@@ -12,12 +12,12 @@ import { roleMiddleware } from "../middleware/role.middleware.js";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  authMiddleware,
-  roleMiddleware("ADMIN"),
-  createUser
-);
+// router.post(
+//   "/",
+//   authMiddleware,
+//   roleMiddleware("ADMIN"),
+//   createUser
+// );
 
 router.get(
   "/profile",
