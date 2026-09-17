@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getDashboard,createAdmin } from "../controllers/admin.controller.js";
+import { getDashboard,createAdmin, getAllOrders} from "../controllers/admin.controller.js";
 
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleMiddleware } from "../middleware/role.middleware.js";
@@ -19,5 +19,10 @@ router.post(
   roleMiddleware("ADMIN"),
   createAdmin
 );
-
+router.get(
+  "/allOrders",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  getAllOrders
+)
 export default router;

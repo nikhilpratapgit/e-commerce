@@ -16,6 +16,7 @@ import OrderDetails from "./pages/OrderDetails";
 import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
 import AdminRegister from "./pages/AdminRegister";
+import AdminOrders from "./pages/AdminOrders";
 
 function App() {
   return (
@@ -87,19 +88,40 @@ function App() {
 
         <Route
           path="/admin/products/add"
-          element={<AddProduct />}
+          element={
+            <ProtectedRoute role="ADMIN">
+              <AddProduct />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/products/edit/:id"
-          element={<EditProduct />}
+          element={
+            <ProtectedRoute role="ADMIN">
+              <EditProduct />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/register"
-          element={<AdminRegister />}
+          element={
+            <ProtectedRoute role="ADMIN">
+              <AdminRegister />
+            </ProtectedRoute>
+          }
         />
-        
+
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute role="ADMIN">
+              <AdminOrders />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );

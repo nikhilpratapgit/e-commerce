@@ -22,20 +22,26 @@ function Navbar() {
 
           {isAuthenticated && (
             <>
-
-              <Link to="/orders">Orders</Link>
               <Link to="/profile">Profile</Link>
             </>
           )}
 
           {user?.role === "USER" && (
+            <>
             <Link to="/cart">Cart</Link>
+            <Link to="/orders">Orders</Link>
+            </>
           )}
-          
+
           {user?.role === "ADMIN" && (
+            <>
             <Link to="/admin/dashboard">
               Admin Dashboard
             </Link>
+            <Link to="/admin/orders">
+              All orders
+            </Link>
+            </>
           )}
 
           {!isAuthenticated ? (
