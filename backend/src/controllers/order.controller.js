@@ -36,102 +36,112 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Find user's cart
-    const cart = await prisma.cart.findUnique({
-      where: {
-        userId
-      },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      }
-    });
+    // Everything related to creating the order
+    // is now inside one transaction.
+    const order = await prisma.$transaction(async (tx) => {
 
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({
-        message: "Cart is empty"
-      });
-    }
-
-    // Check stock and calculate total
-    let totalAmount = 0;
-
-    for (const item of cart.items) {
-      if (!item.product.isActive) {
-        return res.status(400).json({
-          message: `${item.product.name} is no longer available`
-        });
-      }
-
-      if (item.quantity > item.product.stock) {
-        return res.status(400).json({
-          message: `Insufficient stock for ${item.product.name}`
-        });
-      }
-
-      totalAmount += item.product.price * item.quantity;
-    }
-
-    // Generate order number
-    const orderNumber = `ORD-${Date.now()}`;
-
-    // Create order
-    const order = await prisma.order.create({
-      
-      data: {
-        orderNumber,
-        userId,
-        totalAmount,
-        shippingAddress: {
-          fullName,
-          phone,
-          address,
-          city,
-          state,
-          pincode,
-          country
-        },
-        items: {
-          create: cart.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.product.price
-          }))
-        }
-      },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      }
-    });
-
-    // Reduce product stock
-    for (const item of cart.items) {
-      await prisma.product.update({
+      // 1. Find user's cart
+      const cart = await tx.cart.findUnique({
         where: {
-          id: item.productId
+          userId
         },
-        data: {
-          stock: {
-            decrement: item.quantity
+        include: {
+          items: {
+            include: {
+              product: true
+            }
           }
         }
       });
-    }
 
-    // Clear cart
-    await prisma.cartItem.deleteMany({
-      where: {
-        cartId: cart.id
+      if (!cart || cart.items.length === 0) {
+        throw new Error("Cart is empty");
       }
+
+      // 2. Check stock and calculate total
+      let totalAmount = 0;
+
+      for (const item of cart.items) {
+
+        if (!item.product.isActive) {
+          throw new Error(
+            `${item.product.name} is no longer available`
+          );
+        }
+
+        if (item.quantity > item.product.stock) {
+          throw new Error(
+            `Insufficient stock for ${item.product.name}`
+          );
+        }
+
+        totalAmount += item.product.price * item.quantity;
+      }
+
+      // 3. Generate order number
+      const orderNumber = `ORD-${Date.now()}`;
+
+      // 4. Create order
+      const order = await tx.order.create({
+        data: {
+          orderNumber,
+          userId,
+          totalAmount,
+
+          shippingAddress: {
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            pincode,
+            country
+          },
+
+          items: {
+            create: cart.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.product.price
+            }))
+          }
+        },
+
+        include: {
+          items: {
+            include: {
+              product: true
+            }
+          }
+        }
+      });
+
+      // 5. Reduce product stock
+      for (const item of cart.items) {
+        await tx.product.update({
+          where: {
+            id: item.productId
+          },
+          data: {
+            stock: {
+              decrement: item.quantity
+            }
+          }
+        });
+      }
+
+      // 6. Clear cart
+      await tx.cartItem.deleteMany({
+        where: {
+          cartId: cart.id
+        }
+      });
+
+      // Returned from transaction
+      return order;
     });
 
+    // Transaction successfully committed
     return res.status(201).json({
       message: "Order created successfully",
       order
@@ -141,7 +151,7 @@ export const createOrder = async (req, res) => {
     console.error(error);
 
     return res.status(500).json({
-      message: "Failed to create order"
+      message: error.message || "Failed to create order"
     });
   }
 };
