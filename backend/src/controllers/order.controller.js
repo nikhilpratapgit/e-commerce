@@ -40,7 +40,7 @@ export const createOrder = async (req, res) => {
     // is now inside one transaction.
     const order = await prisma.$transaction(async (tx) => {
 
-      // 1. Find user's cart
+      // 1. Get cart
       const cart = await tx.cart.findUnique({
         where: {
           userId
@@ -54,11 +54,11 @@ export const createOrder = async (req, res) => {
         }
       });
 
+      // 2. Validate cart
       if (!cart || cart.items.length === 0) {
         throw new Error("Cart is empty");
       }
 
-      // 2. Check stock and calculate total
       let totalAmount = 0;
 
       for (const item of cart.items) {
@@ -69,25 +69,40 @@ export const createOrder = async (req, res) => {
           );
         }
 
-        if (item.quantity > item.product.stock) {
+        totalAmount += item.product.price * item.quantity;
+      }
+
+      // 3. Atomically reserve stock
+      for (const item of cart.items) {
+
+        const result = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            stock: {
+              gte: item.quantity
+            },
+            isActive: true
+          },
+          data: {
+            stock: {
+              decrement: item.quantity
+            }
+          }
+        });
+
+        if (result.count === 0) {
           throw new Error(
             `Insufficient stock for ${item.product.name}`
           );
         }
-
-        totalAmount += item.product.price * item.quantity;
       }
-
-      // 3. Generate order number
-      const orderNumber = `ORD-${Date.now()}`;
 
       // 4. Create order
       const order = await tx.order.create({
         data: {
-          orderNumber,
+          orderNumber: `ORD-${Date.now()}`,
           userId,
           totalAmount,
-
           shippingAddress: {
             fullName,
             phone,
@@ -97,7 +112,6 @@ export const createOrder = async (req, res) => {
             pincode,
             country
           },
-
           items: {
             create: cart.items.map((item) => ({
               productId: item.productId,
@@ -106,7 +120,6 @@ export const createOrder = async (req, res) => {
             }))
           }
         },
-
         include: {
           items: {
             include: {
@@ -116,28 +129,13 @@ export const createOrder = async (req, res) => {
         }
       });
 
-      // 5. Reduce product stock
-      for (const item of cart.items) {
-        await tx.product.update({
-          where: {
-            id: item.productId
-          },
-          data: {
-            stock: {
-              decrement: item.quantity
-            }
-          }
-        });
-      }
-
-      // 6. Clear cart
+      // 5. Clear cart
       await tx.cartItem.deleteMany({
         where: {
           cartId: cart.id
         }
       });
 
-      // Returned from transaction
       return order;
     });
 
