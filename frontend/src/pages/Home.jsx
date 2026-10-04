@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import {useAuth} from "../context/AuthContext"
 
 function Home() {
+  const {isAuthenticated } = useAuth();
   return (
     <main className="home-page">
       <section className="hero">
@@ -27,12 +29,12 @@ function Home() {
               Shop Now
             </Link>
 
-            <Link
+            {!isAuthenticated &&(<><Link
               to="/register"
               className="secondary-button"
             >
               Create Account
-            </Link>
+            </Link></>)}
           </div>
         </div>
       </section>
